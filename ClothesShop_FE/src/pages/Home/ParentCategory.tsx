@@ -41,7 +41,7 @@ export default function ParentCategory({ data }: Data) {
                             backgroundColor: selectedCategory == data.male ? "black" : "#e0e0e0", // giữ nguyên
                         },
                     }} />
-                <Chip label="ĐỒ NỮ Test"
+                <Chip label="ĐỒ NỮ Test1"
                     onClick={() => setSelectedCategory(data.female)}
                     sx={{
                         py: { lg: 3, xs: 0.5 },
