@@ -1,0 +1,64 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # --- Backend (.NET) ---
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Restore backend
+      run: dotnet restore ./ClothesShop_BE/ClothesShop.sln
+
+    - name: Build backend
+      run: dotnet build ./ClothesShop_BE/ClothesShop.sln --configuration Release
+
+    - name: Test backend
+      run: dotnet test ./ClothesShop_BE/ClothesShop.sln
+
+    - name: Publish backend
+      run: dotnet publish ./ClothesShop_BE/ClothesShop/ClothesShop.csproj -c Release -o ./ClothesShop_BE/publish
+
+    # --- Frontend (React) ---
+    - name: Setup Node
+      uses: actions/setup-node@v3
+      with:
+        node-version: 20
+
+    - name: Install frontend dependencies
+      run: |
+        cd ClothesShop_FE
+        npm install
+
+    - name: Build frontend
+      run: |
+        cd ClothesShop_FE
+        npm run build
+
+    # --- Deploy to server ---
+    - name: Deploy via SSH
+      uses: appleboy/ssh-action@v0.1.6
+      with:
+        host: ${{ secrets.SERVER_IP }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        port: 22
+        script: |
+          # Deploy backend
+          rm -rf ~/clothes-shop-app/ClothesShop_BE/publish/*
+          cp -r ./ClothesShop_BE/publish/* ~/clothes-shop-app/ClothesShop_BE/publish/
+
+          # Deploy frontend
+          rm -rf /var/www/vhosts
