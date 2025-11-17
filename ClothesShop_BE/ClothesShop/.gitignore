@@ -1,0 +1,42 @@
+## Build results
+bin/
+obj/
+out/
+
+## User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+## Visual Studio Code
+.vscode/
+
+## Rider IDE
+.idea/
+
+## ASP.NET Secrets & Config
+appsettings.Development.json
+appsettings.Local.json
+appsettings.*.json.local
+secrets.json
+*.env
+
+## Logs
+*.log
+logs/
+
+## Database (local)
+*.mdf
+*.ldf
+*.db
+*.sqlite
+
+## Publish folders
+publish/
+
+## OS generated
+.DS_Store
+Thumbs.db
+
+*.vs

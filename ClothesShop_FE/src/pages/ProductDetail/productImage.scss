@@ -1,0 +1,11 @@
+.productOverall{
+    .thumb-slide {
+  opacity: 0.4;
+  transition: opacity 0.3s, border-color 0.3s;
+  border: 2px solid transparent;
+}
+
+.swiper-slide-thumb-active .thumb-slide {
+  opacity: 1;
+}
+}
