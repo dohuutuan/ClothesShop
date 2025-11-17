@@ -47,7 +47,7 @@ export default function Chatbot({
         reset();
     };
     const ai = new GoogleGenAI({
-        apiKey: "AIzaSyCSs_LSCAKWKnkZQ6iZOvKnwhxRX_jCEcg",
+        apiKey: "xxx",
     });
 
     async function sendMessage(message: string) {
