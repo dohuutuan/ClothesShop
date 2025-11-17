@@ -9,4 +9,3 @@ export const sendMessageApi = async (message: { content: string }) => {
     const response = await api.post("/user/message", message);
     return response.data.data;
 }
-//AIzaSyCSs_LSCAKWKnkZQ6iZOvKnwhxRX_jCEcg
