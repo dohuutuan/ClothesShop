@@ -48,7 +48,7 @@ jobs:
         cd ClothesShop_FE
         npm run build
 
-    # --- Deploy backend via SCP ---
+    # --- Copy backend to server ---
     - name: Copy backend publish to server
       uses: appleboy/scp-action@v0.1.0
       with:
@@ -59,8 +59,19 @@ jobs:
         source: "ClothesShop_BE/publish/*"
         target: "~/clothes-shop-app/ClothesShop_BE/publish/"
 
-    # --- Deploy frontend via SSH ---
-    - name: Deploy frontend via SSH
+    # --- Copy frontend to server ---
+    - name: Copy frontend build to server
+      uses: appleboy/scp-action@v0.1.0
+      with:
+        host: ${{ secrets.SERVER_IP }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        port: 22
+        source: "ClothesShop_FE/dist/*"
+        target: "~/ClothesShop_FE/dist/"
+
+    # --- Deploy frontend & restart backend ---
+    - name: Deploy frontend and restart backend
       uses: appleboy/ssh-action@v0.1.6
       with:
         host: ${{ secrets.SERVER_IP }}
@@ -68,9 +79,9 @@ jobs:
         key: ${{ secrets.SERVER_SSH_KEY }}
         port: 22
         script: |
-          # Remove old frontend (sudo để tránh permission denied)
+          # Remove old frontend
           sudo rm -rf /var/www/vhosts/frontend/dist/*
-          # Copy new build from publish folder (đã SCP lên server hoặc sync qua SSH)
+          # Copy new frontend build
           sudo cp -r ~/ClothesShop_FE/dist/* /var/www/vhosts/frontend/dist/
           # Restart backend service
-          sudo systemctl restart clotheshop.service
+          sudo systemctl restart clothesshop.service
