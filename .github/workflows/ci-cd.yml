@@ -56,8 +56,8 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: 22
-          source: "ClothesShop_BE/publish/*"   # chỉ copy nội dung, không lồng folder
-          target: "~/clothes-shop-app/ClothesShop/ClothesShop_BE/publish/"
+          source: "ClothesShop_BE/publish/*"
+          target: "~/clothes-shop-app/backend_publish/"
 
       # --- Copy frontend build to server ---
       - name: Copy frontend build
@@ -67,10 +67,10 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: 22
-          source: "ClothesShop_FE/dist/*"      # chỉ copy nội dung, không lồng folder
-          target: "~/clothes-shop-app/ClothesShop/ClothesShop_FE/dist/"
+          source: "ClothesShop_FE/dist/*"
+          target: "~/clothes-shop-app/frontend_dist/"
 
-      # --- Deploy frontend & backend + restart service ---
+      # --- Deploy frontend & backend ---
       - name: Deploy to server
         uses: appleboy/ssh-action@v0.1.6
         with:
@@ -79,19 +79,19 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: 22
           script: |
-            # --- Deploy frontend ---
+            echo "---- Deploying Frontend ----"
             sudo rm -rf /var/www/vhosts/frontend/dist/*
-            sudo cp -r ~/clothes-shop-app/ClothesShop/ClothesShop_FE/dist/* /var/www/vhosts/frontend/dist/
+            sudo cp -r ~/clothes-shop-app/frontend_dist/* /var/www/vhosts/frontend/dist/
 
-            # --- Deploy backend ---
-            sudo rm -rf ~/clothes-shop-app/ClothesShop/ClothesShop_BE/publish/*
-            sudo cp -r ~/clothes-shop-app/ClothesShop/ClothesShop_BE/publish/* ~/clothes-shop-app/ClothesShop/ClothesShop_BE/publish/
+            echo "---- Deploying Backend ----"
+            BACKEND_DEPLOY_PATH="/var/www/vhosts/backend"
 
-            # --- Check backend publish ---
-            echo "Backend publish content:"
-            ls -l ~/clothes-shop-app/ClothesShop/ClothesShop_BE/publish/
+            sudo rm -rf $BACKEND_DEPLOY_PATH/*
+            sudo cp -r ~/clothes-shop-app/backend_publish/* $BACKEND_DEPLOY_PATH/
 
-            # --- Restart backend service ---
+            echo "---- Restarting Service ----"
             sudo systemctl daemon-reload
             sudo systemctl restart clothesshop.service
-            sudo systemctl status clothesshop.service
+            sudo systemctl status clothesshop.service --no-pager
+
+            echo "---- Deployment Completed ----"
