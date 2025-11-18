@@ -56,8 +56,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: 22
-          # Copy tất cả file + folder con, không lồng thêm folder
-          source: "ClothesShop_BE/publish/*"
+          source: "ClothesShop_BE/publish/*"   # chỉ copy nội dung, không lồng folder
           target: "~/clothes-shop-app/ClothesShop/ClothesShop_BE/publish/"
 
       # --- Copy frontend build to server ---
@@ -68,7 +67,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: 22
-          source: "ClothesShop_FE/dist/*"
+          source: "ClothesShop_FE/dist/*"      # chỉ copy nội dung, không lồng folder
           target: "~/clothes-shop-app/ClothesShop/ClothesShop_FE/dist/"
 
       # --- Deploy frontend & backend + restart service ---
@@ -84,7 +83,11 @@ jobs:
             sudo rm -rf /var/www/vhosts/frontend/dist/*
             sudo cp -r ~/clothes-shop-app/ClothesShop/ClothesShop_FE/dist/* /var/www/vhosts/frontend/dist/
 
-            # --- Check backend publish exists ---
+            # --- Deploy backend ---
+            sudo rm -rf ~/clothes-shop-app/ClothesShop/ClothesShop_BE/publish/*
+            sudo cp -r ~/clothes-shop-app/ClothesShop/ClothesShop_BE/publish/* ~/clothes-shop-app/ClothesShop/ClothesShop_BE/publish/
+
+            # --- Check backend publish ---
             echo "Backend publish content:"
             ls -l ~/clothes-shop-app/ClothesShop/ClothesShop_BE/publish/
 
