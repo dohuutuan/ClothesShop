@@ -48,7 +48,29 @@ jobs:
           cd ClothesShop_FE
           npm run build
 
-      # --- Deploy frontend + backend + restart service ---
+      # --- Copy backend publish to server ---
+      - name: Copy backend publish
+        uses: appleboy/scp-action@v0.1.0
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: 22
+          source: "ClothesShop_BE/publish/"
+          target: "~/clothes-shop-app/ClothesShop/ClothesShop_BE/publish/"
+
+      # --- Copy frontend build to server ---
+      - name: Copy frontend build
+        uses: appleboy/scp-action@v0.1.0
+        with:
+          host: ${{ secrets.SERVER_IP }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: 22
+          source: "ClothesShop_FE/dist/"
+          target: "~/clothes-shop-app/ClothesShop/ClothesShop_FE/dist/"
+
+      # --- Deploy frontend & backend + restart service ---
       - name: Deploy to server
         uses: appleboy/ssh-action@v0.1.6
         with:
@@ -58,14 +80,12 @@ jobs:
           port: 22
           script: |
             # --- Deploy frontend ---
-            # Xoá cũ
             sudo rm -rf /var/www/vhosts/frontend/dist/*
-            # Copy toàn bộ dist (folder con assets vẫn giữ nguyên)
-            sudo cp -r ~/ClothesShop_FE/dist/. /var/www/vhosts/frontend/dist/
+            sudo cp -r ~/clothes-shop-app/ClothesShop/ClothesShop_FE/dist/. /var/www/vhosts/frontend/dist/
 
             # --- Deploy backend ---
-            sudo rm -rf ~/clothes-shop-app/ClothesShop_BE/publish/*
-            cp -r ~/ClothesShop_BE/publish/* ~/clothes-shop-app/ClothesShop_BE/publish/
+            sudo rm -rf ~/clothes-shop-app/ClothesShop/ClothesShop_BE/publish/*
+            cp -r ~/clothes-shop-app/ClothesShop/ClothesShop_BE/publish/* ~/clothes-shop-app/ClothesShop/ClothesShop_BE/publish/
 
             # --- Restart backend service ---
             sudo systemctl restart clothesshop.service
