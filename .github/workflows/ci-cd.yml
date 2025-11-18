@@ -58,8 +58,10 @@ jobs:
           port: 22
           script: |
             # --- Deploy frontend ---
+            # Xoá cũ
             sudo rm -rf /var/www/vhosts/frontend/dist/*
-            sudo cp -r ~/ClothesShop_FE/dist/* /var/www/vhosts/frontend/dist/
+            # Copy toàn bộ dist (folder con assets vẫn giữ nguyên)
+            sudo cp -r ~/ClothesShop_FE/dist/. /var/www/vhosts/frontend/dist/
 
             # --- Deploy backend ---
             sudo rm -rf ~/clothes-shop-app/ClothesShop_BE/publish/*
