@@ -83,9 +83,10 @@ jobs:
             sudo rm -rf /var/www/vhosts/frontend/dist/*
             sudo cp -r ~/clothes-shop-app/ClothesShop/ClothesShop_FE/dist/. /var/www/vhosts/frontend/dist/
 
-            # --- Deploy backend ---
-            sudo rm -rf ~/clothes-shop-app/ClothesShop/ClothesShop_BE/publish/*
-            cp -r ~/clothes-shop-app/ClothesShop/ClothesShop_BE/publish/* ~/clothes-shop-app/ClothesShop/ClothesShop_BE/publish/
+            # --- Ensure backend publish exists and correct ---
+            ls -l ~/clothes-shop-app/ClothesShop/ClothesShop_BE/publish/
 
             # --- Restart backend service ---
+            sudo systemctl daemon-reload
             sudo systemctl restart clothesshop.service
+            sudo systemctl status clothesshop.service
