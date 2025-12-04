@@ -3,12 +3,10 @@ import axios from "axios";
 import { refreshTokenApi } from "./authService";
 import { queryClient } from "../main";
 
-const API_URL = import.meta.env.VITE_API_URL;
-console.log(API_URL);
 
 
 const api = axios.create({
-  baseURL: API_URL,
+  baseURL: "/api"
 });
 // attach token to every request
 api.interceptors.request.use(
