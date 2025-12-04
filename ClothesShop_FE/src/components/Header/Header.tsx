@@ -18,6 +18,7 @@ const navItems = [
   { name: "Home", path: "/" },
   { name: "Nam", path: "/category/nam" },
   { name: "Nữ", path: "/category/nu" },
+  { name: "The thao", path: "/category/nu" },
 ]
 export default function Header({ headerRef }: HeaderProps) {
   const [searchTerm, setSearchTerm] = useState("");
