@@ -1,0 +1,17 @@
+services:
+  frontend:
+    image: tuando1007/clothes-frontend:latest
+    container_name: vite-react-fe
+    ports:
+      - "80:80"
+    restart: unless-stopped
+
+  backend:
+    image: tuando1007/clothes-backend:latest
+    container_name: dotnet-api
+    env_file: ./ClothesShop_BE/ClothesShop/.env
+    environment:
+      ASPNETCORE_URLS: "http://+:5000"
+    ports:
+      - "5000:5000"
+    restart: unless-stopped

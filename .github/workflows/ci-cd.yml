@@ -1,97 +1,47 @@
-name: CI/CD Pipeline
+name: Deploy Docker App
 
 on:
   push:
-    branches:
-      - main
+    branches: [ "main" ]
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # --- Checkout code ---
-      - name: Checkout code
-        uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      # --- Backend (.NET) ---
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: 8.0.x
+    # Login Docker Hub (để push)
+    - name: Login Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Restore backend
-        run: dotnet restore ./ClothesShop_BE/ClothesShop.sln
+    # Build backend
+    - name: Build backend image
+      run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/backend:latest ./backend
 
-      - name: Build backend
-        run: dotnet build ./ClothesShop_BE/ClothesShop.sln --configuration Release
+    - name: Push backend image
+      run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/backend:latest
 
-      - name: Test backend
-        run: dotnet test ./ClothesShop_BE/ClothesShop.sln
+    # Build frontend
+    - name: Build frontend image
+      run: docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/frontend:latest ./frontend
 
-      - name: Publish backend
-        run: dotnet publish ./ClothesShop_BE/ClothesShop/ClothesShop.csproj -c Release -o ./ClothesShop_BE/publish
+    - name: Push frontend image
+      run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/frontend:latest
 
-      # --- Frontend (React) ---
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20
-
-      - name: Install frontend dependencies
-        run: |
-          cd ClothesShop_FE
-          npm install
-
-      - name: Build frontend
-        run: |
-          cd ClothesShop_FE
-          npm run build
-
-      # --- Copy backend publish to server ---
-      - name: Copy backend publish
-        uses: appleboy/scp-action@v0.1.0
-        with:
-          host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          port: 22
-          source: "ClothesShop_BE/publish/*"
-          target: "~/clothes-shop-app/backend_publish/"
-
-      # --- Copy frontend build to server ---
-      - name: Copy frontend build
-        uses: appleboy/scp-action@v0.1.0
-        with:
-          host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          port: 22
-          source: "ClothesShop_FE/dist/*"
-          target: "~/clothes-shop-app/frontend_dist/"
-
-      # --- Deploy frontend & backend ---
-      - name: Deploy to server
-        uses: appleboy/ssh-action@v0.1.6
-        with:
-          host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          port: 22
-          script: |
-            echo "---- Deploying Frontend ----"
-            sudo rm -rf /var/www/vhosts/frontend/dist/*
-            sudo cp -r ~/clothes-shop-app/frontend_dist/* /var/www/vhosts/frontend/dist/
-
-            echo "---- Deploying Backend ----"
-            BACKEND_DEPLOY_PATH="/var/www/vhosts/backend"
-
-            sudo rm -rf $BACKEND_DEPLOY_PATH/*
-            sudo cp -r ~/clothes-shop-app/backend_publish/* $BACKEND_DEPLOY_PATH/
-
-            echo "---- Restarting Service ----"
-            sudo systemctl daemon-reload
-            sudo systemctl restart clothesshop.service
-            sudo systemctl status clothesshop.service --no-pager
-
-            echo "---- Deployment Completed ----"
+    # Deploy lên server
+    - name: SSH to server and deploy
+      uses: appleboy/ssh-action@v1.2.0
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        script: |
+          cd /home/ubuntu
+          docker compose pull
+          docker compose down
+          docker compose up -d
