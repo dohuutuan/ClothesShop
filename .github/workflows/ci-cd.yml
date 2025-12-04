@@ -21,14 +21,14 @@ jobs:
 
     # Build backend image
     - name: Build backend image
-      run: docker build -t tuando1007/clothes-backend:latest ./backend
+      run: docker build -t tuando1007/clothes-backend:latest ./ClothesShop_BE
 
     - name: Push backend image
       run: docker push tuando1007/clothes-backend:latest
 
     # Build frontend image
     - name: Build frontend image
-      run: docker build -t tuando1007/clothes-frontend:latest ./frontend
+      run: docker build -t tuando1007/clothes-frontend:latest ./ClothesShop_FE
 
     - name: Push frontend image
       run: docker push tuando1007/clothes-frontend:latest
