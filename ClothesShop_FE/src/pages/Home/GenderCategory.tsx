@@ -45,7 +45,7 @@ export default function GenderCategory() {
                                 fontSize: { lg: "25px", xs: "10px" },
                                 
                             }}>
-                            WOMAN WEAR
+                            Tuan WEAR
                         </Typography>
                         <Typography
                             color="text.secondary"
