@@ -52,6 +52,7 @@ export const getProductFeedbackApi = async (
   });
   return response.data.data;
 };
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const orderApi = async (data: any) => {
   const response = await api.post("/products/order", data);
   return response.data.data;
